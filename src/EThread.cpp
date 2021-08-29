@@ -1,5 +1,8 @@
-#include <iostream>
+#include "include/EThread.h"
 
-void say_hello(){
-    std::cout << "Hello, from EThread!\n";
-}
+namespace ETH
+{
+	EThread::EThread(EThread&& other)
+	{
+	}
+]
