@@ -1,49 +1,56 @@
-#include "include/EThread.h"
+#include "include/LThread.h"
 
 namespace ETH
 {
-	LoopThread::LoopThread()
-		: EThread(&LoopThread::lThread, this)
+	LThread::LThread()
+		: EThread(&LThread::loopThread, this)
 	{}
 
-	LoopThread::LoopThread(LoopThread&& other) noexcept
+	LThread::LThread(LThread&& other) noexcept
 		: EThread(std::move(other)), m_loop_function(std::move(other.m_loop_function)) {}
 
-	LoopThread::LoopThread(const LoopThread& other)
+	LThread::LThread(const LThread& other)
 		: EThread(other), m_loop_function(other.m_loop_function) {}
 
-	LoopThread::~LoopThread()
+	LThread::~LThread()
 	{
-		if (started())
+	#ifndef ETH_NO_AUTO_JOIN
+		if (running())
 			stop();
+	#endif
 	}
 
-	void LoopThread::swap(LoopThread& other)
+	void LThread::swap(LThread& other)
 	{
 		EThread::swap(static_cast<EThread>(other));
 
 		std::swap(m_loop_function, other.m_loop_function);
-		std::swap(m_ready_to_run_loop, other.m_ready_to_run_loop);
+		std::swap(m_loop_is_running, other.m_loop_is_running);
 		std::swap(m_stop_joining, other.m_stop_joining);
 		
-		bool tmp = m_stop;
-		m_stop = other.m_stop.load();
-		other.m_stop = tmp;
+		{
+			std::lock_guard<std::mutex> lock_this(m_mutex);
+			std::lock_guard<std::mutex> lock_other(other.m_mutex);
+
+			bool tmp = m_stop;
+			m_stop = other.m_stop.load();
+			other.m_stop = tmp;
+		}
 	}
 
-	void LoopThread::start()
+	void LThread::start()
 	{
 		m_stop = false;
 		EThread::start();
 	}
 
-	void LoopThread::restart()
+	void LThread::restart()
 	{
 		stop();
 		start();
 	}
 
-	void LoopThread::stop()
+	void LThread::stop()
 	{
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
@@ -56,26 +63,26 @@ namespace ETH
 		join();
 	}
 
-	void LoopThread::startLoop()
+	void LThread::startLoop()
 	{
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
 
-			m_ready_to_run_loop = true;
+			m_loop_is_running = true;
 		}
 
 		m_cv.notify_one();
 	}
 
-	void LoopThread::restartLoop()
+	void LThread::restartLoop()
 	{
 		joinLoop();
 		startLoop();
 	}
 
-	void LoopThread::joinLoop()
+	void LThread::joinLoop()
 	{
-		if (m_ready_to_run_loop)
+		if (m_loop_is_running)
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 
@@ -84,19 +91,19 @@ namespace ETH
 		}
 	}
 
-	void LoopThread::lThread()
+	void LThread::loopThread()
 	{
 		std::unique_lock<std::mutex> lock(m_mutex);
 
 		m_cv.notify_one();
 		while (!m_stop)
 		{
-			m_cv.wait(lock, [this]() { return m_ready_to_run_loop || m_stop; });
+			m_cv.wait(lock, [this]() { return m_loop_is_running || m_stop; });
 
-			if (m_ready_to_run_loop)
+			if (m_loop_is_running)
 				m_loop_function();
 
-			m_ready_to_run_loop = false;
+			m_loop_is_running = false;
 			m_stop_joining = true;
 			m_cv.notify_one();
 		}
