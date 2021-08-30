@@ -73,12 +73,12 @@ std::pair<std::string, std::string> testEThread()
 	return SUCCESS;
 }
 
-std::pair<std::string, std::string> testLoopThread() 
+std::pair<std::string, std::string> testLThread() 
 {
 	int call_count = 0;
 	std::function call_counter([&call_count]() { call_count++; });
 
-	LoopThread lthread(call_counter);
+	LThread lthread(call_counter);
 
 	lthread.start();
 
@@ -111,5 +111,5 @@ std::pair<std::string, std::string> testLoopThread()
 int main()
 {
 	RUN_TEST(testEThread);
-	RUN_TEST(testLoopThread);
+	RUN_TEST(testLThread);
 }
