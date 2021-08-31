@@ -11,7 +11,7 @@ using namespace std::chrono_literals;
 auto[category, err_msg] = test_name(); \
 std::cout << "result: " << category << '\n'; \
 if(category != "SUCCESS") std::cout << "error message: " << err_msg << '\n';}
-#define REQUIRE(condition, category, error_message) if(!(condition)) { return {category, error_message}; }
+#define REQUIRE(value, condition, category, error_message) if(!(condition)) { std::string msg = std::string(error_message) + "\nvalue: " + std::to_string(value); return {category, msg}; }
 
 #define SUCCESS {"SUCCESS", ""}
 
@@ -36,19 +36,19 @@ std::pair<std::string, std::string> testEThread()
 	EThread threadA(&tEThrdHelper::hmeth, &strcA);
 	EThread threadB(&tEThrdHelper::hmeth, &strcB);
 
-	REQUIRE(strcA.a == 0 && strcB.a == 0, "THREAD METHOD START ERROR", "Expected static variable to be unmodified before thread was started");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 0, "THREAD METHOD START ERROR", "Expected static variable to be unmodified before thread was started");
 
 	threadA.start();
 
 	threadA.join();
 
-	REQUIRE(strcA.a == 1 && strcB.a == 1, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 1, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
 
 	threadB.start();
 
 	threadB.join();
 
-	REQUIRE(strcA.a == 2 && strcB.a == 2, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 2, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
 	
 	threadA.start();
 	threadB.start();
@@ -56,39 +56,45 @@ std::pair<std::string, std::string> testEThread()
 	threadA.join();
 	threadB.join();
 
-	REQUIRE(strcA.a == 4 && strcB.a == 4, "THREAD METHOD START ERROR", "Expected static variable to be modified twice after thread join");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 4, "THREAD METHOD START ERROR", "Expected static variable to be modified twice after thread join");
 
 	bool was_called = false;
 
 	EThread thread(std::function([&was_called]() { was_called = true; }));
 
-	REQUIRE(!was_called, "THREAD START ERROR", "Thread was started without calling start()");
+	REQUIRE(was_called, !was_called, "THREAD START ERROR", "Thread was started without calling start()");
 
 	thread.start();
 	thread.join();
 
-	REQUIRE(was_called, "THREAD JOIN ERROR", "Thread was never started or joined");
+	REQUIRE(was_called, was_called, "THREAD JOIN ERROR", "Thread was never started or joined");
 
 
 	return SUCCESS;
 }
 
+struct tLThrdHelper
+{
+	std::atomic<int> calls = 0;
+	void incrCall() { calls++; }
+};
+
 std::pair<std::string, std::string> testLThread() 
 {
-	int call_count = 0;
-	std::function call_counter([&call_count]() { call_count++; });
+	tLThrdHelper helper;
 
-	LThread lthread(call_counter);
+	EThread t(&tLThrdHelper::incrCall, &helper);
+	LThread lthread(&tLThrdHelper::incrCall, &helper);
 
 	lthread.start();
 
-	REQUIRE(call_count == 0, "LOOP THREAD START ERROR", "Thread loop was started before startLoop() was called");
+	REQUIRE(helper.calls, helper.calls == 0, "LOOP THREAD START ERROR", "Thread loop was started before startLoop() was called");
 
 	lthread.startLoop();
 
 	lthread.joinLoop();
 
-	REQUIRE(call_count == 1, "LOOP THREAD LOOP ERROR", "Thread loop was not started on startLoop() call");
+	REQUIRE(helper.calls, helper.calls == 1, "LOOP THREAD LOOP ERROR", "Thread loop was not started on startLoop() call");
 
 	lthread.startLoop();
 
@@ -99,11 +105,11 @@ std::pair<std::string, std::string> testLThread()
 
 	lthread.joinLoop();
 
-	REQUIRE(call_count == 101, "LOOP THREAD RESTART ERROR", "Thread loop was not restarted correct amount on multiple restartLoop() calls");
+	REQUIRE(helper.calls, helper.calls == 101, "LOOP THREAD RESTART ERROR", "Thread loop was not restarted correct amount on multiple restartLoop() calls");
 
 	lthread.stop();
 
-	REQUIRE(call_count == 101, "LOOP THREAD STOP ERROR", "Thread loop was started on stop() call");
+	REQUIRE(helper.calls, helper.calls == 101, "LOOP THREAD STOP ERROR", "Thread loop was started on stop() call");
 
 	return SUCCESS;
 }
