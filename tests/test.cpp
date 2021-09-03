@@ -3,6 +3,9 @@
 #include <chrono>
 #include <array>
 #include <functional>
+#include <string>
+#include <Windows.h>
+#include <cassert>
 
 using namespace ETH;
 using namespace std::chrono_literals;
@@ -88,28 +91,33 @@ std::pair<std::string, std::string> testLThread()
 
 	lthread.start();
 
-	REQUIRE(helper.calls, helper.calls == 0, "LOOP THREAD START ERROR", "Thread loop was started before startLoop() was called");
+	size_t calls = 0;
+
+	REQUIRE(helper.calls, helper.calls == calls, "LOOP THREAD START ERROR", "Thread loop was started before startLoop() was called");
 
 	lthread.startLoop();
+	calls++;
 
 	lthread.joinLoop();
 
-	REQUIRE(helper.calls, helper.calls == 1, "LOOP THREAD LOOP ERROR", "Thread loop was not started on startLoop() call");
+	REQUIRE(helper.calls, helper.calls == calls, "LOOP THREAD LOOP ERROR", "Thread loop was not started on startLoop() call");
 
 	lthread.startLoop();
+	calls++;
 
-	for (size_t i = 0; i < 99; i++)
+	for (size_t i = 0; i < 9999; i++)
 	{
 		lthread.restartLoop();
+		calls++;
 	}
 
 	lthread.joinLoop();
 
-	REQUIRE(helper.calls, helper.calls == 101, "LOOP THREAD RESTART ERROR", "Thread loop was not restarted correct amount on multiple restartLoop() calls");
+	REQUIRE(helper.calls, helper.calls == calls, "LOOP THREAD RESTART ERROR", "Thread loop was not restarted correct amount on multiple restartLoop() calls");
 
 	lthread.stop();
 
-	REQUIRE(helper.calls, helper.calls == 101, "LOOP THREAD STOP ERROR", "Thread loop was started on stop() call");
+	REQUIRE(helper.calls, helper.calls == calls, "LOOP THREAD STOP ERROR", "Thread loop was started on stop() call");
 
 	return SUCCESS;
 }
