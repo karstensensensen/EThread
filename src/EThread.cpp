@@ -3,7 +3,7 @@
 namespace ETH
 {
 	EThread::EThread(EThread&& other) noexcept
-		: m_thread(std::move(other.m_thread)), m_function(std::move(other.m_function)), m_is_running(other.m_is_running)
+		: m_function(std::move(other.m_function)), m_thread(std::move(other.m_thread)), m_is_running(other.m_is_running)
 	{}
 
 	EThread::EThread(const EThread& other)
