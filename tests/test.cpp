@@ -37,27 +37,35 @@ std::pair<std::string, std::string> testEThread()
 	EThread threadA(&tEThrdHelper::hmeth, &strcA);
 	EThread threadB(&tEThrdHelper::hmeth, &strcB);
 
-	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 0, "THREAD METHOD START ERROR", "Expected static variable to be unmodified before thread was started");
+	int calls = 0;
+
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == calls, "THREAD METHOD START ERROR", "Expected static variable to be unmodified before thread was started");
 
 	threadA.start();
 
+	calls++;
+
 	threadA.join();
 
-	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 1, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == calls, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
 
 	threadB.start();
+	
+	calls++;
 
 	threadB.join();
 
-	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 2, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == calls, "THREAD METHOD START ERROR", "Expected static variable to be modified only once after thread join");
 	
 	threadA.start();
 	threadB.start();
+	
+	calls += 2;
 
 	threadA.join();
 	threadB.join();
 
-	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == 4, "THREAD METHOD START ERROR", "Expected static variable to be modified twice after thread join");
+	REQUIRE(tEThrdHelper::a, tEThrdHelper::a == calls, "THREAD METHOD START ERROR", "Expected static variable to be modified twice after thread join");
 
 	bool was_called = false;
 
