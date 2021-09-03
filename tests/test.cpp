@@ -78,7 +78,7 @@ std::pair<std::string, std::string> testEThread()
 
 struct tLThrdHelper
 {
-	std::atomic<int> calls = 0;
+	int calls = 0;
 	void incrCall() { calls++; }
 };
 
@@ -105,7 +105,7 @@ std::pair<std::string, std::string> testLThread()
 	lthread.startLoop();
 	calls++;
 
-	for (size_t i = 0; i < 9999; i++)
+	for (size_t i = 0; i < 99999; i++)
 	{
 		lthread.restartLoop();
 		calls++;
