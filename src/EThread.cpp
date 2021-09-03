@@ -22,7 +22,7 @@ namespace ETH
 	void EThread::start()
 	{
 	#ifdef ETH_DEBUG
-		assert(running());
+		assert(!running());
 	#endif
 
 		m_is_running = true;
