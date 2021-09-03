@@ -49,11 +49,11 @@ namespace ETH
 		void stop();
 
 		using EThread::running;
+		using EThread::joinable;
 
 		void startLoop();
 		void restartLoop();
 		void joinLoop();
-
 
 		bool runningLoop();
 

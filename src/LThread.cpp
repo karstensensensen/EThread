@@ -69,6 +69,10 @@ namespace ETH
 
 	void LThread::startLoop()
 	{
+	#ifdef ETH_DEBUG
+		assert(running());
+	#endif
+
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -86,6 +90,10 @@ namespace ETH
 
 	void LThread::joinLoop()
 	{
+	#ifdef ETH_DEBUG
+		assert(running());
+	#endif
+
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 
