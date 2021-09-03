@@ -2,6 +2,7 @@
 
 #include "include/EThread.h"
 
+#include <atomic>
 #include <mutex>
 #include <condition_variable>
 

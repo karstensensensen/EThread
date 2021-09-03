@@ -4,8 +4,6 @@
 #include <array>
 #include <functional>
 #include <string>
-#include <Windows.h>
-#include <cassert>
 
 using namespace ETH;
 using namespace std::chrono_literals;
