@@ -31,8 +31,7 @@ namespace ETH
 
 		std::swap(m_loop_function, other.m_loop_function);
 		std::swap(m_loop_is_running, other.m_loop_is_running);
-		std::swap(m_stop_joining, other.m_stop_joining);
-		
+			
 		{
 			std::lock_guard<std::mutex> lock_this(m_mutex);
 			std::lock_guard<std::mutex> lock_other(other.m_mutex);
@@ -90,8 +89,7 @@ namespace ETH
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 
-			m_cv.wait(lock, [this] { return m_stop_joining || !m_loop_is_running; });
-			m_stop_joining = false;
+			m_cv.wait(lock, [this] { return !m_loop_is_running; });
 		}
 	}
 
@@ -107,7 +105,6 @@ namespace ETH
 					m_loop_function();
 
 				m_loop_is_running = false;
-				m_stop_joining = true;
 			}
 
 			m_cv.notify_one();

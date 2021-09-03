@@ -69,7 +69,6 @@ namespace ETH
 		std::condition_variable m_cv;
 
 		bool m_loop_is_running = false;
-		bool m_stop_joining = false;
 		std::atomic<bool> m_stop = true;
 	};
 }
