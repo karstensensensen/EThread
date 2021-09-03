@@ -50,6 +50,16 @@ namespace ETH
 		m_thread.join();
 	}
 
+	bool EThread::running()
+	{
+		return m_is_running;
+	}
+
+	bool EThread::joinable()
+	{
+		return m_thread.joinable();
+	}
+
 	void EThread::detach()
 	{
 	#ifdef ETH_DEBUG
@@ -63,5 +73,10 @@ namespace ETH
 	void EThread::swap(EThread& other)
 	{
 		std::swap(m_function, other.m_function);
+	}
+
+	ETHID EThread::getId()
+	{
+		return m_thread.get_id();
 	}
 }

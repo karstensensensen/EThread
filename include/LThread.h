@@ -54,7 +54,7 @@ namespace ETH
 		void joinLoop();
 
 
-		bool runningLoop() { return m_loop_is_running; }
+		bool runningLoop();
 
 		void swap(LThread & other);
 
@@ -65,14 +65,12 @@ namespace ETH
 		void loopThread();
 
 		std::function<void()> m_loop_function;
-		bool m_loop_is_running = false;
-		bool m_stop_joining = false;
-		
-		std::atomic<bool> m_stop = true;
-
 		std::mutex m_mutex;
 		std::condition_variable m_cv;
-	
+
+		bool m_loop_is_running = false;
+		bool m_stop_joining = false;
+		std::atomic<bool> m_stop = true;
 	};
 }
 

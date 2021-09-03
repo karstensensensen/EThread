@@ -50,20 +50,21 @@ namespace ETH
 		void restart();
 		void join();
 
-		bool running() { return m_is_running; };
-		bool joinable() { return m_thread.joinable(); }
+		bool running();
+		bool joinable();
 
 		void detach();
 		bool detached() { return m_is_detached; }
 
 		void swap(EThread& other);
 
-		ETHID getId() { return m_thread.get_id(); }
+		ETHID getId();
 
 	protected:
 
-		std::thread m_thread;
 		std::function<void()> m_function;
+		std::thread m_thread;
+
 		bool m_is_running = false;
 		bool m_is_detached = false;
 	};

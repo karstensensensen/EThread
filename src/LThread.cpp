@@ -20,9 +20,14 @@ namespace ETH
 	#endif
 	}
 
+	bool LThread::runningLoop()
+	{
+		return m_loop_is_running;
+	}
+
 	void LThread::swap(LThread& other)
 	{
-		EThread::swap(static_cast<EThread>(other));
+		EThread::swap(static_cast<EThread&>(other));
 
 		std::swap(m_loop_function, other.m_loop_function);
 		std::swap(m_loop_is_running, other.m_loop_is_running);
