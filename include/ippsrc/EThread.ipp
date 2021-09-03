@@ -1,4 +1,4 @@
-#include "..\EThread.h"
+#include "include/EThread.h"
 
 namespace ETH
 {
