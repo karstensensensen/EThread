@@ -26,6 +26,8 @@ target_include_directories(${PROJECT_NAME} PUBLIC ./)
 
 target_link_libraries(${PROJECT_NAME} ${CMAKE_THREAD_LIBS_INIT})
 
+target_compile_definitions(${PROJECT_NAME} PUBLIC $<$<CONFIG:DEBUG>:ETH_DEBUG>)
+
 # set warning level
 if(MSVC)
 target_compile_options(${PROJECT_NAME} PRIVATE -W4 -WX)

@@ -1,4 +1,5 @@
 #include "include/LThread.h"
+#include <cassert>
 
 namespace ETH
 {
