@@ -87,29 +87,29 @@ namespace ETH
 
 	void LThread::joinLoop()
 	{
-		if (m_loop_is_running)
 		{
 			std::unique_lock<std::mutex> lock(m_mutex);
 
-			m_cv.wait(lock, [this] { return m_stop_joining; });
+			m_cv.wait(lock, [this] { return m_stop_joining || !m_loop_is_running; });
 			m_stop_joining = false;
 		}
 	}
 
 	void LThread::loopThread()
 	{
-		std::unique_lock<std::mutex> lock(m_mutex);
-
-		m_cv.notify_one();
 		while (!m_stop)
 		{
-			m_cv.wait(lock, [this]() { return m_loop_is_running || m_stop; });
+			{
+				std::unique_lock<std::mutex> lock(m_mutex);
+				m_cv.wait(lock, [this]() { return m_loop_is_running || m_stop; });
 
-			if (m_loop_is_running)
-				m_loop_function();
+				if (m_loop_is_running)
+					m_loop_function();
 
-			m_loop_is_running = false;
-			m_stop_joining = true;
+				m_loop_is_running = false;
+				m_stop_joining = true;
+			}
+
 			m_cv.notify_one();
 		}
 	}
