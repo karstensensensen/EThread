@@ -22,6 +22,13 @@ add_library(${PROJECT_NAME} STATIC ${SRC} ${INCLUDE} ETH.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC ./)
 
+# set warning level
+if(MSVC)
+target_compile_options(${PROJECT_NAME} PRIVATE -W4 -WX)
+else()
+target_compile_options(${PROJECT_NAME} PRIVATE -Wall -Wextra -Wpedantic -Werror)
+endif()
+
 source_group("src" FILES ${SRC})
 source_group("include" FILES ${INCLUDE} ETH.h)
 
