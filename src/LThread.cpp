@@ -67,7 +67,7 @@ namespace ETH
 
 		m_cv.notify_one();
 
-		join();
+		EThread::join();
 	}
 
 	void LThread::startLoop()
