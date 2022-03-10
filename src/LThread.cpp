@@ -98,7 +98,7 @@ namespace ETH
 		assert(running());
 	#endif
 		
-		if(!m_loop_is_running)
+		if(m_loop_is_running)
 		{
 			// simply wait until loop is running is set to false
 			std::unique_lock<std::mutex> lock(m_mutex);
