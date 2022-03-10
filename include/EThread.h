@@ -31,7 +31,7 @@ namespace ETH
 		EThread(std::function<TFunc> thread_function, Args ... function_args);
 
 		/// @brief constructor, same as EThread(std::function<TFunc>, Args ...), but the function argument is a function pointer
-		template<typename TRet, typename ... TFArgs, typename ... Args, std::enable_if_t<std::is_pointer_v<typename TRet(*)(TFArgs...)>&& std::is_function_v<typename std::remove_pointer_t<typename TRet(*)(TFArgs...)>>&& std::is_same_v<TRet, void>, bool> = false>
+		template<typename TRet, typename ... TFArgs, typename ... Args, std::enable_if_t<std::is_pointer_v<TRet(*)(TFArgs...)>&& std::is_function_v<typename std::remove_pointer_t<TRet(*)(TFArgs...)>>&& std::is_same_v<TRet, void>, bool> = false>
 		EThread(TRet(*function_ptr)(TFArgs...), Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
 
 		/// @brief ETHread(TFunc&, Args ...) for class methods

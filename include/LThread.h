@@ -32,7 +32,7 @@ namespace ETH
 		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_pointer_v<TFunc> && std::is_function_v<typename std::remove_pointer_t<TFunc>> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
 		LThread(TFunc function_ptr, Args ... function_args) : LThread(std::function(function_ptr), function_args...) {}
 		/// @brief specialization for static methods
-		template<typename TRet, typename ... TFArgs, typename ... Args, std::enable_if_t<std::is_pointer_v<typename TRet(*)(TFArgs...)>&& std::is_function_v<typename std::remove_pointer_t<typename TRet(*)(TFArgs...)>>&& std::is_same_v<TRet, void>, bool> = false>
+		template<typename TRet, typename ... TFArgs, typename ... Args, std::enable_if_t<std::is_pointer_v<TRet(*)(TFArgs...)>&& std::is_function_v<typename std::remove_pointer_t<TRet(*)(TFArgs...)>>&& std::is_same_v<TRet, void>, bool> = false>
 		LThread(TRet(*function_ptr)(TFArgs...), Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
 
 		/// @see EThread(TFunc&, TClass*, Args ...)
