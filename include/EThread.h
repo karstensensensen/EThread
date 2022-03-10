@@ -31,11 +31,8 @@ namespace ETH
 		EThread(std::function<TFunc> thread_function, Args ... function_args);
 
 		/// @brief constructor, same as EThread(std::function<TFunc>, Args ...), but the function argument is a function pointer
-		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_pointer_v<TFunc> && std::is_function_v<typename std::remove_pointer_t<TFunc>> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
-		EThread(TFunc function_ptr, Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
-		/// @brief specialization for static methods
-		template<typename TFunc, typename TClass, typename ... Args, std::enable_if_t<std::is_pointer_v<typename TClass::TFunc> && std::is_function_v<typename std::remove_pointer_t<typename TClass::TFunc>> && std::is_same_v<std::invoke_result_t<typename TClass::TFunc, TClass>, void>, bool> = false>
-		EThread(typename TClass::TFunc function_ptr, Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
+		template<typename TRet, typename ... TFArgs, typename ... Args, std::enable_if_t<std::is_pointer_v<typename TRet(*)(TFArgs...)>&& std::is_function_v<typename std::remove_pointer_t<typename TRet(*)(TFArgs...)>>&& std::is_same_v<TRet, void>, bool> = false>
+		EThread(TRet(*function_ptr)(TFArgs...), Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
 
 		/// @brief ETHread(TFunc&, Args ...) for class methods
 		template<typename TFunc, typename TClass, typename ... Args, std::enable_if_t<std::is_member_function_pointer_v<TFunc> && std::is_class_v<TClass>, bool> = false>
