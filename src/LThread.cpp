@@ -17,7 +17,7 @@ namespace ETH
 	{
 	#ifndef ETH_NO_AUTO_JOIN
 		if (running())
-			stop();
+			join();
 	#endif
 	}
 
@@ -30,10 +30,11 @@ namespace ETH
 	{
 		EThread::swap(static_cast<EThread&>(other));
 
-		std::swap(m_loop_function, other.m_loop_function);
-		std::swap(m_loop_is_running, other.m_loop_is_running);
-			
 		{
+			// locks must be initiated when swapping data that might be read from the thread
+			std::swap(m_loop_function, other.m_loop_function);
+			std::swap(m_loop_is_running, other.m_loop_is_running);
+		
 			std::lock_guard<std::mutex> lock_this(m_mutex);
 			std::lock_guard<std::mutex> lock_other(other.m_mutex);
 
@@ -51,12 +52,13 @@ namespace ETH
 
 	void LThread::restart()
 	{
-		stop();
+		join();
 		start();
 	}
 
-	void LThread::stop()
+	void LThread::join()
 	{
+		// simply set the stop variable to false, and notify the condition variable so the loop function can exit.
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -74,6 +76,7 @@ namespace ETH
 		assert(running());
 	#endif
 
+		// set the loop running variable to true and notify the condition variable that it has changed, so the loop thread can start
 		{
 			std::lock_guard<std::mutex> lock(m_mutex);
 
@@ -94,8 +97,10 @@ namespace ETH
 	#ifdef ETH_DEBUG
 		assert(running());
 	#endif
-
+		
+		if(!m_loop_is_running)
 		{
+			// simply wait until loop is running is set to false
 			std::unique_lock<std::mutex> lock(m_mutex);
 
 			m_cv.wait(lock, [this] { return !m_loop_is_running; });
@@ -107,6 +112,7 @@ namespace ETH
 		while (!m_stop)
 		{
 			{
+				// start of by waiting until a loop is started
 				std::unique_lock<std::mutex> lock(m_mutex);
 				m_cv.wait(lock, [this]() { return m_loop_is_running || m_stop; });
 
@@ -116,6 +122,7 @@ namespace ETH
 				m_loop_is_running = false;
 			}
 
+			// notify, so functions like joinLoop will know the loop has finished
 			m_cv.notify_one();
 		}
 	}
