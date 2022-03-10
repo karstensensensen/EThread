@@ -29,8 +29,8 @@ namespace ETH
 		LThread(std::function<TFunc> thread_function, Args ... function_args);
 
 		/// @see EThread(TFunc&, Args ...)
-		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_function_v<TFunc>&& std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
-		LThread(TFunc & function_ptr, Args ... function_args) : LThread(std::function(function_ptr), function_args...) {}
+		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_pointer_v<TFunc> && std::is_function_v<typename std::remove_pointer_t<TFunc>> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
+		LThread(TFunc function_ptr, Args ... function_args) : LThread(std::function(function_ptr), function_args...) {}
 
 		/// @see EThread(TFunc&, TClass*, Args ...)
 		template<typename TFunc, typename TClass, typename ... Args, std::enable_if_t<std::is_member_function_pointer_v<TFunc> && std::is_class_v<TClass>, bool> = false>
@@ -42,8 +42,8 @@ namespace ETH
 		void setThrdFunc(std::function<TFunc> thread_fucntion, Args ... function_args);
 		
 		/// @see EThread::setThrdFunc(TFunc&, Args ...)
-		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_function_v<TFunc>&& std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
-		void setThrdFunc(TFunc & thread_function, Args ... function_args) { setThrdFunc(std::function(thread_function), function_args...); }
+		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_pointer_v<TFunc> && std::is_function_v<typename std::remove_pointer_t<TFunc>> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
+		void setThrdFunc(TFunc thread_function, Args ... function_args) { setThrdFunc(std::function(thread_function), function_args...); }
 		
 		/// @see EThread::setThrdFunc(TFunc&, TClass*, Args ...)
 		template<typename TFunc, typename TClass, typename ... Args, std::enable_if_t<std::is_member_function_pointer_v<TFunc>&& std::is_class_v<TClass>, bool> = false>

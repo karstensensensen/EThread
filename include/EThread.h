@@ -31,8 +31,8 @@ namespace ETH
 		EThread(std::function<TFunc> thread_function, Args ... function_args);
 
 		/// @brief constructor, same as EThread(std::function<TFunc>, Args ...), but the function argument is a function pointer
-		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_function_v<TFunc> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
-		EThread(TFunc& function_ptr, Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
+		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_pointer_v<TFunc> && std::is_function_v<typename std::remove_pointer_t<TFunc>> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
+		EThread(TFunc function_ptr, Args ... function_args) : EThread(std::function(function_ptr), function_args...) {}
 
 		/// @brief ETHread(TFunc&, Args ...) for class methods
 		template<typename TFunc, typename TClass, typename ... Args, std::enable_if_t<std::is_member_function_pointer_v<TFunc> && std::is_class_v<TClass>, bool> = false>
@@ -42,8 +42,8 @@ namespace ETH
 		template<typename TFunc, typename ... Args>
 		void setThrdFunc(std::function<TFunc> thread_fucntion, Args ... function_args);
 		/// @brief setThrdFunc(std::function<TFunc>, Args ...) but for function pointers
-		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_function_v<TFunc>&& std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
-		void setThrdFunc(TFunc& thread_fucntion, Args ... function_args) { setThrdFunc(std::function(thread_fucntion), function_args...); }
+		template<typename TFunc, typename ... Args, std::enable_if_t<std::is_pointer_v<TFunc> && std::is_function_v<typename std::remove_pointer_t<TFunc>> && std::is_same_v<std::invoke_result_t<TFunc>, void>, bool> = false>
+		void setThrdFunc(TFunc thread_fucntion, Args ... function_args) { setThrdFunc(std::function(thread_fucntion), function_args...); }
 		/// @brief setThrdFunc(TFunc&, Args ...) but for methods
 		template<typename TFunc, typename TClass, typename ... Args, std::enable_if_t<std::is_member_function_pointer_v<TFunc>&& std::is_class_v<TClass>, bool> = false>
 		void setThrdFunc(TFunc thread_method, TClass* class_ptr, Args ... function_args) { setThrdFunc(std::function(std::bind(thread_method, class_ptr, function_args...))); }
