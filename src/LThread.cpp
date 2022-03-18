@@ -7,11 +7,8 @@ namespace ETH
 		: EThread(&LThread::loopThread, this)
 	{}
 
-	LThread::LThread(LThread&& other) noexcept
-		: EThread(std::move(other)), m_loop_function(std::move(other.m_loop_function)) {}
-
 	LThread::LThread(const LThread& other)
-		: EThread(other), m_loop_function(other.m_loop_function) {}
+		: EThread(&LThread::loopThread, this), m_loop_function(other.m_loop_function) {}
 
 	LThread::~LThread()
 	{

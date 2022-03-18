@@ -20,7 +20,6 @@ namespace ETH
 	{
 	public:
 		LThread();
-		LThread(LThread && other) noexcept;
 		LThread(const LThread & other);
 		~LThread();
 
