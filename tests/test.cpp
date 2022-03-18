@@ -121,7 +121,7 @@ std::pair<std::string, std::string> testLThread()
 
 	REQUIRE(helper.calls, helper.calls == calls, "LOOP THREAD RESTART ERROR", "Thread loop was not restarted correct amount on multiple restartLoop() calls");
 
-	lthread.stop();
+	lthread.join();
 
 	REQUIRE(helper.calls, helper.calls == calls, "LOOP THREAD STOP ERROR", "Thread loop was started on stop() call");
 
